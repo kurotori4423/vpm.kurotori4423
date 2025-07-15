@@ -24,7 +24,7 @@ on:
         default: 'placeholder-package'
         type: choice
         options:
-          - placeholder-package  # この値は repositories.yml 設定後に自動更新されます
+          - AvatarPoseViewer
       tag:
         type: string
         required: true
@@ -34,9 +34,6 @@ on:
         required: false
         description: 'repository owner (optional, will use config if not provided)'
         default: ''
-
-permissions:
-  contents: write
 
 env:
   DEFAULT_REPO_OWNER: 'your-github-username'
