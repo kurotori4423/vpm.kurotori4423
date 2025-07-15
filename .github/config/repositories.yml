@@ -2,18 +2,16 @@
 # このファイルで対象のリポジトリとオーナーを設定します
 
 # デフォルトのリポジトリオーナー
-default_owner: "your-github-username"
+default_owner: "kurotori4423"
 
 # 管理対象のリポジトリリスト
 repositories:
-  - name: "your-package-1"
-    owner: "package-owner"  # 異なる場合のみ指定
-  - name: "your-package-2"
+  - name: "AvatarPoseViewer"
 
 # VPMリポジトリの設定
 vpm_settings:
-  repo_url: "https://your-username.github.io/your-repo-name/vpm.json"
+  repo_url: "https://kurotori4423.github.io/vpm.kurotori4423/vpm.json"
   name: "Your VPM Repository"
-  description: "あなたのVRChat用パッケージリポジトリ"
-  author_name: "your-username"
-  author_url: "https://github.com/your-username"
+  description: "kurotori4423's VPM repository"
+  author_name: "kurotori4423"
+  author_url: "https://github.com/kurotori4423"
