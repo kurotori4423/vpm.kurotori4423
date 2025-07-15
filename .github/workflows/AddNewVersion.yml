@@ -89,7 +89,22 @@ jobs:
             const validatedVpm = mod.validateAndFixVpmRepo(process.env.VPMRepoJson);
             return JSON.stringify(validatedVpm, null, 2);
 
-
+      - name: Check Repository Releases
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OWNER: ${{ steps.GetOwner.outputs.result }}
+          REPOSITORY: ${{ inputs.repository }}
+        run: |
+          echo "=== Available releases in $OWNER/$REPOSITORY ==="
+          curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$OWNER/$REPOSITORY/releases" | \
+            jq -r '.[].tag_name' | head -10 || echo "Failed to fetch releases"
+          echo ""
+          echo "=== Available tags in $OWNER/$REPOSITORY ==="
+          curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$OWNER/$REPOSITORY/tags" | \
+            jq -r '.[].name' | head -10 || echo "Failed to fetch tags"
+      
       - name: Get NewVersion Data
         id: ReleaseData
         uses: cardinalby/git-get-release-action@v1
