@@ -6,7 +6,7 @@ default_owner: "kurotori4423"
 
 # 管理対象のリポジトリリスト
 repositories:
-  - name: "AvatarPoseViewer"
+  - name: "AvatarPosingStationUtilities"
 
 # VPMリポジトリの設定
 vpm_settings:

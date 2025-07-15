@@ -24,7 +24,7 @@ on:
         default: 'placeholder-package'
         type: choice
         options:
-          - AvatarPoseViewer
+          - AvatarPosingStationUtilities
       tag:
         type: string
         required: true
