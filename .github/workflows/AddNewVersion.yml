@@ -35,6 +35,9 @@ on:
         description: 'repository owner (optional, will use config if not provided)'
         default: ''
 
+permissions:
+  contents: write
+
 env:
   DEFAULT_REPO_OWNER: 'your-github-username'
 

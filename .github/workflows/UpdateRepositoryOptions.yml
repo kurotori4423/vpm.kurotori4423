@@ -5,6 +5,9 @@ on:
     paths:
       - '.github/config/repositories.yml'
 
+permissions:
+  contents: write
+
 jobs:
   update-workflow:
     runs-on: ubuntu-latest
