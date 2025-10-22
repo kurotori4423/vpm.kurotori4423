@@ -1,6 +1,6 @@
 # VPMリポジトリの設定
 vpm_settings:
-  name: "Your VPM Repository"
-  description: "あなたのVRChat用パッケージリポジトリ"
+  name: "Kurotori VPM Repository"
+  description: "Kurotori VPM tools and asset Repository"
   # author_name: "作者名"      # 省略時は自動設定
   # author_url: "URL"         # 省略時は自動設定
