@@ -1,0 +1,48 @@
+name: Update Repository Configuration
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/config/repositories.yml'
+
+jobs:
+  update-configuration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        
+      - name: Install dependencies
+        run: |
+          npm install js-yaml
+          pip install pyyaml
+
+      - name: Update add-repo.html
+        id: UpdateAddRepoHtml
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const mod = await import("${{ github.workspace }}/.github/workflows/JsScripts/UpdateAddRepoHtml.mjs");
+            const result = mod.updateAddRepoHtml();
+            return JSON.stringify(result);
+
+      - name: Display Updated URLs
+        env:
+          UPDATE_RESULT: ${{ steps.UpdateAddRepoHtml.outputs.result }}
+        run: |
+          echo "=== add-repo.html Update Result ==="
+          echo "$UPDATE_RESULT" | python3 -m json.tool
+          echo ""
+
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/AddNewVersion.yml add-repo.html
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update workflow options and add-repo.html from repositories.yml"
+            git push origin
+          fi

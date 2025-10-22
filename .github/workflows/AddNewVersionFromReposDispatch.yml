@@ -1,0 +1,11 @@
+name: Add-New-Version-From-Repos-Dispatch
+on:
+  repository_dispatch:
+    types: [add_new_version]
+
+jobs:
+  Add-New-Version-From-Repos-Dispatch:
+    uses: ./.github/workflows/AddNewVersion.yml
+    with:
+      repository: ${{ github.event.client_payload.repository }}
+      tag: ${{ github.event.client_payload.tag }}

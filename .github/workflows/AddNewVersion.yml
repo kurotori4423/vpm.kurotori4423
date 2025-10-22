@@ -1,0 +1,193 @@
+name: add-new-version
+on:
+  workflow_call:
+    inputs:
+      repository:
+        description: 'repository choice'
+        required: true
+        default: 'placeholder-package'
+        type: string
+      tag:
+        type: string
+        required: true
+        description: 'version tag string'
+      owner:
+        type: string
+        required: true
+        description: 'repository owner'
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'repository choice'
+        required: true
+        type: string        
+        default: 'placeholder-package'
+      tag:
+        type: string
+        required: true
+        description: 'version tag string'
+      owner:
+        type: string
+        required: true
+        description: 'repository owner'
+
+env:
+  DEFAULT_REPO_OWNER: ${{ github.repository_owner }}
+
+jobs:
+  add-new-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Install js-yaml for config parsing
+        run: npm install js-yaml
+
+      - name: Get Repository Owner
+        id: GetOwner
+        uses: actions/github-script@v7
+        env:
+          PROVIDED_OWNER: ${{ inputs.owner }}
+        with:
+          result-encoding: string
+          script: |
+            // オーナーは必須なので直接返す
+            return process.env.PROVIDED_OWNER.trim();
+
+      - name: MoveToVar
+        id: VPMRepoJson
+        run: |
+          if [ ! -f "./vpm.json" ]; then
+            echo "vpm.jsonが存在しないため、基本構造を作成します"
+            echo '{"packages":{}}' > ./vpm.json
+          fi
+          Temp=`cat ./vpm.json`
+          echo 'result=' $Temp >> "$GITHUB_OUTPUT"
+
+      - name: Validate and Initialize VPM Repository
+        id: InitializedVPMJson
+        uses: actions/github-script@v7
+        env:
+          VPMRepoJson: ${{ steps.VPMRepoJson.outputs.result }}
+        with:
+          result-encoding: string
+          script: |
+            const mod = await import("${{ github.workspace }}/.github/workflows/JsScripts/InitializeVpmRepo.mjs");
+            const validatedVpm = mod.validateAndFixVpmRepo(process.env.VPMRepoJson);
+            return JSON.stringify(validatedVpm, null, 2);
+
+
+      - name: Get NewVersion Data
+        id: ReleaseData
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          repo: ${{ steps.GetOwner.outputs.result }}/${{ inputs.repository }}
+          tag: ${{ inputs.tag }}
+
+      - name: Get ZipURL
+        id: ZipURL
+        uses: actions/github-script@v7
+        env:
+          Assets: ${{ steps.ReleaseData.outputs.assets }}
+          Tag: ${{ inputs.tag }}
+        with:
+          result-encoding: string
+          script: |
+            const mod = await import("${{ github.workspace }}/.github/workflows/JsScripts/GetZipURL.mjs");
+            return mod.Func();
+
+      - name: GetPackageDotJson
+        id: PackageDotJson
+        uses: actions/github-script@v7
+        env:
+          Assets: ${{ steps.ReleaseData.outputs.assets }}
+        with:
+          result-encoding: string
+          script: |
+            const mod = await import("${{ github.workspace }}/.github/workflows/JsScripts/GetPackageDotJson.mjs");
+            return await mod.Func();
+
+
+      - name: Debug VPM Repository Status
+        env:
+          ORIGINAL_VPM: ${{ steps.VPMRepoJson.outputs.result }}
+          INITIALIZED_VPM: ${{ steps.InitializedVPMJson.outputs.result }}
+        run: |
+          echo "=== Generated GitHub Pages URL ==="
+          echo "Owner: ${{ github.repository_owner }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Expected VPM URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/vpm.json"
+          echo ""
+          echo "=== Original vpm.json ==="
+          echo "$ORIGINAL_VPM" | head -20
+          echo ""
+          echo "=== Initialized vpm.json ==="
+          echo "$INITIALIZED_VPM" | head -20
+          echo ""
+
+      - name: Debug Repository Info
+        env:
+          REPOSITORY: ${{ inputs.repository }}
+          OWNER: ${{ steps.GetOwner.outputs.result }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          echo "Repository: $REPOSITORY"
+          echo "Owner: $OWNER" 
+          echo "Tag: $TAG"
+          echo "Full repo path: $OWNER/$REPOSITORY"
+
+      - name: Debug
+        env:
+          ZIP_URL: ${{ steps.ZipURL.outputs.result }}
+          PACKAGE_JSON: ${{ steps.PackageDotJson.outputs.result }}
+        run: |
+          echo $ZIP_URL
+          echo $PACKAGE_JSON
+
+
+      - name: ReplacePackageURL
+        id: ReplacedPackageJson
+        uses: actions/github-script@v7
+        env:
+          PackageJson: ${{ steps.PackageDotJson.outputs.result }}
+          ReplaceURL: ${{ steps.ZipURL.outputs.result }}
+        with:
+          result-encoding: string
+          script: |
+            const mod = await import("${{ github.workspace }}/.github/workflows/JsScripts/ReplacePackageURL.mjs");
+            return mod.Func();
+
+      - name: AddVPMDotJson
+        id: AddedVPMDotJson
+        uses: actions/github-script@v7
+        env:
+          VPMRepoJson: ${{ steps.InitializedVPMJson.outputs.result }}
+          AddPackageJson: ${{ steps.ReplacedPackageJson.outputs.result }}
+          RepositoryOwner: ${{ steps.GetOwner.outputs.result }}
+        with:
+          result-encoding: string
+          script: |
+            const mod = await import("${{ github.workspace }}/.github/workflows/JsScripts/AddToVPMRepo.mjs");
+            return mod.Func();
+
+
+      - name: Write Json
+        env:
+          VPM_JSON: ${{ steps.AddedVPMDotJson.outputs.result }}
+        run: |
+          rm  ./vpm.json
+          echo "$VPM_JSON" >> ./vpm.json
+
+      - name: git commit
+        env:
+          REPO: ${{ inputs.repository }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          git config user.name  "GitHub Action"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ./vpm.json
+          git commit -m "Add $REPO New Version $TAG!"
+          git push origin
