@@ -1,0 +1,34 @@
+{
+  "name": "Kurotori VPM Repository",
+  "description": "Kurotori VPM tools and asset Repository",
+  "url": "https://kurotori4423.github.io/vpm.kurotori4423/vpm.json",
+  "id": "kurotori4423.github.io.vpm.kurotori4423.vpm.json",
+  "author": {
+    "name": "Repository Owner",
+    "url": ""
+  },
+  "packages": {
+    "com.kurotori4423.autoudonsharpprogramassetgenerator": {
+      "versions": {
+        "1.0.0": {
+          "name": "com.kurotori4423.autoudonsharpprogramassetgenerator",
+          "displayName": "Auto UdonSharp Program Asset Generator",
+          "version": "1.0.0",
+          "unity": "2022.3",
+          "description": "Automatically generates UdonSharpProgramAsset for UdonSharp scripts.",
+          "author": {
+            "name": "kurotori4423",
+            "email": "kurotori4423@gmail.com",
+            "url": "https://github.com/kurotori4423/UdonSharpProgramAssetPostProcessor"
+          },
+          "dependencies": {},
+          "vpmDependencies": {
+            "com.vrchat.worlds": ">=3.6.0"
+          },
+          "url": "https://github.com/kurotori4423/AutoUdonSharpProgramAssetGenerator/releases/download/v1.0.0/Auto.UdonSharp.Program.Asset.Generator_v1.0.0.zip",
+          "repo": "https://kurotori4423.github.io/vpm.kurotori4423/vpm.json"
+        }
+      }
+    }
+  }
+}
