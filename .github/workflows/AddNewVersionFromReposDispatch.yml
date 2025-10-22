@@ -9,4 +9,4 @@ jobs:
     with:
       repository: ${{ github.event.client_payload.repository }}
       tag: ${{ github.event.client_payload.tag }}
-      owner: ${{ github.evet.client_payload.owner}}
+      owner: ${{ github.event.client_payload.owner}}
