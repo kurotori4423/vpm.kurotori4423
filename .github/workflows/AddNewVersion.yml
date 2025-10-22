@@ -84,7 +84,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          repo: ${{ steps.GetOwner.outputs.result }}/${{ inputs.repository }}
+          repo: ${{ inputs.owner }}/${{ inputs.repository }}
           tag: ${{ inputs.tag }}
 
       - name: Get ZipURL
@@ -166,7 +166,7 @@ jobs:
         env:
           VPMRepoJson: ${{ steps.InitializedVPMJson.outputs.result }}
           AddPackageJson: ${{ steps.ReplacedPackageJson.outputs.result }}
-          RepositoryOwner: ${{ steps.GetOwner.outputs.result }}
+          RepositoryOwner: ${{ inputs.owner }}
         with:
           result-encoding: string
           script: |
