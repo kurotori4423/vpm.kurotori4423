@@ -3,10 +3,7 @@
   "description": "Kurotori VPM tools and asset Repository",
   "url": "https://kurotori4423.github.io/vpm.kurotori4423/vpm.json",
   "id": "kurotori4423.github.io.vpm.kurotori4423.vpm.json",
-  "author": {
-    "name": "Repository Owner",
-    "url": ""
-  },
+  "author": "Repository Owner",
   "packages": {
     "com.kurotori4423.autoudonsharpprogramassetgenerator": {
       "versions": {
