@@ -11,12 +11,13 @@ export function getVpmSettings() {
         const configPath = path.join(process.env.GITHUB_WORKSPACE, '.github', 'config', 'repositories.yml');
         const configContent = fs.readFileSync(configPath, 'utf8');
         const config = yaml.load(configContent);
+        const vpmSettings = config?.vpm_settings || {};
         
         // GitHub Pages URLを自動生成
         const repoUrl = generateGitHubPagesUrl();
         
         return {
-            ...config.vpm_settings,
+            ...vpmSettings,
             repo_url: repoUrl
         };
         
@@ -27,8 +28,7 @@ export function getVpmSettings() {
             repo_url: generateGitHubPagesUrl(),
             name: `${process.env.GITHUB_REPOSITORY_OWNER || 'VPM'} Repository`, 
             description: 'VRChat用パッケージリポジトリ',
-            author_name: process.env.GITHUB_REPOSITORY_OWNER || 'Repository Owner',
-            author_url: `https://github.com/${process.env.GITHUB_REPOSITORY_OWNER || ''}`
+            author: process.env.GITHUB_REPOSITORY_OWNER || 'Repository Owner'
         };
     }
 }
@@ -46,12 +46,34 @@ export function initializeVpmRepo(existingVpmJson = {}) {
         description: existingVpmJson.description || vpmSettings.description,
         url: existingVpmJson.url || vpmSettings.repo_url,
         id: existingVpmJson.id || generateRepoId(vpmSettings.repo_url),
-        author: existingVpmJson.author || {
-            name: vpmSettings.author_name || "Repository Owner",
-            url: vpmSettings.author_url || ""
-        },
+        author: normalizeRepoAuthor(existingVpmJson.author, vpmSettings),
         packages: existingVpmJson.packages || {}
     };
+}
+
+function normalizeRepoAuthor(existingAuthor, vpmSettings = {}) {
+    if (typeof existingAuthor === 'string' && existingAuthor.trim()) {
+        return existingAuthor.trim();
+    }
+
+    if (
+        existingAuthor &&
+        typeof existingAuthor === 'object' &&
+        typeof existingAuthor.name === 'string' &&
+        existingAuthor.name.trim()
+    ) {
+        return existingAuthor.name.trim();
+    }
+
+    if (typeof vpmSettings.author === 'string' && vpmSettings.author.trim()) {
+        return vpmSettings.author.trim();
+    }
+
+    if (typeof vpmSettings.author_name === 'string' && vpmSettings.author_name.trim()) {
+        return vpmSettings.author_name.trim();
+    }
+
+    return process.env.GITHUB_REPOSITORY_OWNER || 'Repository Owner';
 }
 
 /**
@@ -105,11 +127,19 @@ export function enrichPackageMetadata(packageJson, owner) {
     }
     
     // GitHubリンクの生成（authorが設定されていない場合）
-    if (!packageJson.author || !packageJson.author.url) {
-        packageJson.author = packageJson.author || {};
-        if (!packageJson.author.url) {
-            packageJson.author.url = `https://github.com/${owner}`;
-        }
+    if (!packageJson.author) {
+        packageJson.author = {
+            url: `https://github.com/${owner}`
+        };
+        return packageJson;
+    }
+
+    if (typeof packageJson.author !== 'object') {
+        return packageJson;
+    }
+
+    if (!packageJson.author.url) {
+        packageJson.author.url = `https://github.com/${owner}`;
     }
     
     return packageJson;

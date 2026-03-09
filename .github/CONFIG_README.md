@@ -22,8 +22,7 @@
 vpm_settings:
   name: "Your VPM Repository"
   description: "あなたのVRChat用パッケージリポジトリ"
-  # author_name: "作者名"      # 省略時は自動設定
-  # author_url: "URL"         # 省略時は自動設定
+  # author: "作者名"           # 省略時は GitHub owner を使用
   # repo_url は自動生成されます（GitHub Pages URL）
 ```
 
@@ -136,8 +135,7 @@ jobs:
 vpm_settings:
   name: "Custom Repository Name"
   description: "カスタム説明文"
-  author_name: "カスタム作者名"
-  author_url: "https://example.com"
+  author: "カスタム作者名"
 ```
 
 **注意**: `repo_url`は自動生成されます。

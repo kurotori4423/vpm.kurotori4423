@@ -24,8 +24,7 @@ GitHub Actionsを使用して、パッケージリポジトリから`workflow_ca
 vpm_settings:
   name: "Your VPM Repository" # VPMリポジトリの名前
   description: "あなたのVRChat用パッケージリポジトリ" # VPMリポジトリの説明
-  # author_name: "作者名"      # 省略時は自動設定
-  # author_url: "URL"         # 省略時は自動設定
+  # author: "作者名"           # 省略時は GitHub owner を使用
 ```
 
 パッケージは各リポジトリから`workflow_call`で動的に登録されます。
